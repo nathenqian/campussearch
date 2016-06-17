@@ -48,7 +48,7 @@
 \title{\textbf{搜索引擎大作业报告}}
 \author{
     \kai 钱迪晨 \quad 计35 \quad 2013011402 \\
-    \kai 温和 \quad 计35 \quad 20130114XX
+    \kai 温和 \quad 计35 \quad 2013011407
 }
 \date{\kai\today}
 
@@ -88,51 +88,34 @@
 
 爬虫也做了中断保存的功能，可以随时中断，然后继续上一次的任务队列。同时爬虫也做了简单的命令行指令，可以随时加入种子网页，以及保存退出。
 
-\section{文本解析}
+\section{文件解析}
+文本解析使用Apache的Tika（对于office文档和pdf）和python中的BeautifulSoup4（对于html）完成。对于office文档，直接使用Tika提取文件中的文本和作者等信息；对于html，使用bs4提取body中的文本。对于爬虫得到的20万个结果，共处理了10小时左右。
+
+对于html文件，我们还提取了一张body中的图片（去除明显的banner、logo等图片），作为显示搜索结果时的预览图。
 
 \section{lucene}
 lucene使用了最新的6.0.分词器使用的是smartCNAnalayzer，效果很不错。原来作业里面的lucene版本太老旧。
 
-建立索引的时候，将page rank的值乘到每个document的每个field里面去。（lucene6.0不支持document boost）。同时在建立的索引的时候，将一些信息也保存进去，比如这个document的原网址，网址的图片，这些用来渲染的必须信息。
+建立索引的时候，将pagerank的值乘到每个document的每个field里面去。（lucene6.0不支持document boost）。同时在建立的索引的时候，将一些信息也保存进去，比如这个document的原网址，网址的图片，这些用来渲染的必须信息。由于pagerank在量级上差距过大，我们取系数为\(1.5*(log_2(pr)+22)\)。
 
-搜索的时候使用的query是MultiFieldQueryParser用来构建询问。
+搜索的时候使用的query是MultiFieldQueryParser用来构建询问。关于评分函数，我们使用了标题，文本和作者，权重分别为1，0.01和0.5，对于html还有额外的h1、h2、h3和a，权重分别为0.05,0.03和0.02,。
 
 \section{前端}
 网站前端我们使用的是semantic2.1，以及jquery。
 
-页面最上面是一个带记忆功能的搜索栏，可以帮助记忆你的搜索关键词。
+搜索初始页只有一个标题和搜索框，非常简洁。
 
-页面分成两部分，左半边是搜索的结果以及页面的切换。右半边是页面的浏览功能，这个功能如果是有上下滑动的触摸板的话效果非常好。
+\begin{center}
+    \includegraphics[width=5in]{index}
+\end{center}
 
-% \begin{split}
-% S &= \frac{1}{(1-0.5) + \frac{0.5}{10}}\\
-% S &= \frac{1}{0.5 + 0.05} \\
-% S &= 1.818
-% \end{split}
-% \]
-% \begin{center}
-%     \includegraphics[height=10cm]{result/9_epoch_1.jpg}
-%     \fcaption{第1轮迭代训练的结果}\label{1}
-% \end{center}
+页面最上面是一个搜索栏，显示当前的搜索关键词。
+结果页面分成两部分，左半边是搜索的结果以及页面的切换。右半边是页面的浏览功能，这个功能如果是有上下滑动的触摸板的话效果非常好。
+效果如下图：
 
-% \begin{enumerate}
-%     \item 随着实验的进行，图片的确变得更加的准确，而不仅仅是肉眼上的复原效果更加好了，但是训练的次数过多也会使得画质变得更差。
-%     \item 10次迭代的时候，答案是最优的。
-%     \item 绿色通道随着迭代次数上升最准确，但是红色和蓝色通道就有一点不正确。
-% \end{enumerate}
-
-
-% \begin{center}
-%     \tcaption{内存地址空间映射}\label{table:mem_addr}
-%     \begin{longtable}{ll}
-%         \toprule
-%         逻辑地址 & 映射到的物理地址或设备 \\
-%         \midrule
-%         0x0000 $\thicksim$ 0x7FFF & RAM2 0x0000 $\thicksim$ 0x7FFF \\
-%         0x8000 $\thicksim$ 0xBEFF & RAM1 0x0000 $\thicksim$ 0x3EFF \\
-%         \bottomrule
-%     \end{longtable}
-% \end{center}
+\begin{center}
+    \includegraphics[width=5in]{result}
+\end{center}
 
 \end{document}
 % -----------------end------------------%
